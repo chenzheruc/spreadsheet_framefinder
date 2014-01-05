@@ -3,10 +3,9 @@ Created on Jan 10, 2012
 
 @author: cz
 '''
-import xlrd, os, datetime
-import re, string
+import xlrd, datetime
+import string
 
-from framefinder.const import _strip_non_ascii
 
 class MySheet:
     def __init__(self):
@@ -14,6 +13,9 @@ class MySheet:
         self.mergerowdict = {}
         self.maxcolnum = 0
         self.maxrownum = 0
+        self.nrownum = 0 
+        self.ncolnum = 0
+         
         self.txt = ''
          
         self.mergestrarr = []
@@ -40,8 +42,9 @@ class MySheet:
         
         self.sheetdict[(rownum, colnum)] = mycell
         if mtype == 'str':
-            self.txt += _strip_non_ascii(value)+' '
-        
+            self.txt += value+' '
+     
+   
         
 class MyCell():
     
@@ -271,38 +274,3 @@ class LoadSheets:
         except:
             return None 
 
-def test(sheetdir):
-    count=0
-    failed=0
-
-    
-    for elt in os.listdir(sheetdir):
-        if elt.find('.xls') < 0:
-            continue
-        
-#         if elt != '10s0042.xls':
-#             continue
-        print 'Processing:', elt
-        filepath = sheetdir+'/'+elt
-        try:
-            loadsheet = LoadSheets(filepath)
-            sheetdict = loadsheet.load_sheetdict()
-            for sheetname, mysheet in sheetdict.items():
-                if sheetname != 'Data':
-                    continue
-                print sheetname, mysheet
-        except:
-            print 'FAILED PROCESS: ', elt
-            raise 
-            failed += 1
-        count += 1
-        print 'CURRENT: ', count, 'Failed:', failed
-        
-        if count > 10:
-            break
-        
-    
-if __name__ == '__main__':
-    sheetdir = '/home/cz/data/saus/sheets'
-    test(sheetdir)
-    

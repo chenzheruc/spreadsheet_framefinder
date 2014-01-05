@@ -8,7 +8,7 @@ import re, string
 
         
         
-class Fea_SheetRow:
+class Feature_SheetRow:
     
     def __init__(self):
         self.naset = set(['(na)', 'n/a', '(n/a)', '(x)', '-', '--', 'z', '...'])
@@ -56,7 +56,6 @@ class Fea_SheetRow:
 #        textual features
         feavec.append(self.feature_start_with_table(clinetxt))
         feavec.append(self.feature_start_with_punctation(clinetxt))
-#        feavec.append(self.feature_end_with_and(clinetxt))
         feavec.append(self.feature_number_percent_high(rowcelldict))
         feavec.append(self.feature_digital_percent_high(rowcelldict))
         feavec.append(self.feature_alphabeta_all_capital(clinetxt))
@@ -68,7 +67,6 @@ class Fea_SheetRow:
         feavec.append(self.feature_contain_colon(clinetxt))
         feavec.append(self.feature_year_range_cellnum_high(rowcelldict))
         feavec.append(self.feature_year_range_percent_high(rowcelldict))
-#        feavec.append(self.feature_word_repeat_high(clinetxt, mysheet.txt))
         feavec.append(self.feature_word_length_high(rowcelldict))
         
         return feavec

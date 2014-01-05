@@ -7,9 +7,9 @@ Created on Feb 5, 2012
 import os
 
 from framefinder.load_sheets import LoadSheets
-from framefinder.feature_crf import Fea_SheetRow
+from framefinder.feature_crf import Feature_SheetRow
 from framefinder.const import _crffeadir, _crfpredictdir, _crfppdir,\
-    _crftraindatapath_saus, _crftempdir, _crfpptemplatepath, _sheetdir
+    _crftraindatapath, _crftempdir, _crfpptemplatepath, _sheetdir
 
 class RunCRFppCommands:
 
@@ -20,7 +20,7 @@ class RunCRFppCommands:
 
     def train(self):
         print 'Training CRF++ model... '
-        cmd = self.crftrainscript+' -c 4.0 '+_crfpptemplatepath+' ' + _crftraindatapath_saus + ' '+self.crfmodelpath
+        cmd = self.crftrainscript+' -c 4.0 '+_crfpptemplatepath+' ' + _crftraindatapath + ' '+self.crfmodelpath
         os.system(cmd)
 
     def predict(self):
@@ -43,13 +43,21 @@ class RunCRFppCommands:
  
 class PredictSheetRows:
     def __init__(self):
-        self.fea_row = Fea_SheetRow()
+        self.fea_row = Feature_SheetRow()
     
     def generate_from_sheetdir(self):
+
+        'clean temp folder'
+        cmd = 'rm '+_crftempdir+'/*/*'
+        os.system(cmd)
+            
         count = 0
         for elt in os.listdir(_sheetdir):
             if elt.find('xls') < 0:
                 continue
+            
+#             if elt != '44.xls':
+#                 continue
             
             try:
                 print 'Processing', elt
@@ -59,6 +67,7 @@ class PredictSheetRows:
                     print 'CURRENT:', count
             except:
                 print 'Error processing', elt
+                raise
 
     def generate_from_sheetfile(self, filename):
         filepath = _sheetdir+'/'+filename
@@ -81,11 +90,13 @@ class PredictSheetRows:
                 fout.write('Title\n')
             fout.close() 
             
+    
+            
 if __name__ == '__main__':
     
     
-#     predict = PredictSheetRows()
-#     predict.generate_from_sheetdir()
+    predict = PredictSheetRows()
+    predict.generate_from_sheetdir()
     
     runcrfpp = RunCRFppCommands()
     runcrfpp.train()
