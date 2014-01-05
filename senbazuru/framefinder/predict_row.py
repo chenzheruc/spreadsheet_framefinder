@@ -9,7 +9,7 @@ import os
 from framefinder.load_sheets import LoadSheets
 from framefinder.feature_crf import Feature_SheetRow
 from framefinder.const import _crffeadir, _crfpredictdir, _crfppdir,\
-    _crftraindatapath, _crftempdir, _crfpptemplatepath, _sheetdir
+    _crftraindatapath, _crftempdir, _crfpptemplatepath, _sheetdir, _outputdir
 
 class RunCRFppCommands:
 
@@ -90,17 +90,41 @@ class PredictSheetRows:
                 fout.write('Title\n')
             fout.close() 
             
-    
+
+class TransformOutput:
+    def run(self):
+        for elt in os.listdir(_crfpredictdir):
+            predictpath = _crfpredictdir + '/' + elt
+            outpath = _outputdir + '/' + elt
+            fin = open(predictpath)
+            fout = open(outpath, 'w+')
+            
+            for line in fin:
+                strarr = line.strip().split()
+                if len(strarr) == 0:
+                    continue
+                ckey = strarr[0]
+                clabel = strarr[len(strarr)-1]
+                
+                strarr = ckey.strip().split('____')
+                crow = int(strarr[len(strarr)-1])
+                
+                fout.write(str(crow+1)+'\t'+clabel+'\n')
+            
+            fout.close()
+            fin.close()
             
 if __name__ == '__main__':
     
     
     predict = PredictSheetRows()
     predict.generate_from_sheetdir()
-    
+     
     runcrfpp = RunCRFppCommands()
     runcrfpp.train()
     runcrfpp.predict()
     
+    trans = TransformOutput()
+    trans.run()
 
 
