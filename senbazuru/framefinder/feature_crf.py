@@ -78,6 +78,7 @@ class Feature_SheetRow:
 
 #########################################################
 ####    row features
+#########################################################
 
     def feature_is_row(self, rowname):
         return self.myformat.onevariable('IsRow', rowname)

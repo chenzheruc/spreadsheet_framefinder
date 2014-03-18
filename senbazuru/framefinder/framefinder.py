@@ -6,41 +6,13 @@ Created on Feb 5, 2012
 
 import os
 
-from framefinder.load_sheets import LoadSheets
-from framefinder.feature_crf import Feature_SheetRow
-from framefinder.const import _crffeadir, _crfpredictdir, _crfppdir,\
+from load_sheets import LoadSheets
+from feature_crf import Feature_SheetRow
+from const import _crffeadir, _crfpredictdir, _crfppdir,\
     _crftraindatapath, _crftempdir, _crfpptemplatepath, _sheetdir, _outputdir
 
-class RunCRFppCommands:
 
-    def __init__(self):
-        self.crftrainscript = _crfppdir + '/crf_learn'
-        self.crftestscript = _crfppdir + '/crf_test'
-        self.crfmodelpath = _crftempdir + '/model'
-
-    def train(self):
-        print 'Training CRF++ model... '
-        cmd = self.crftrainscript+' -c 4.0 '+_crfpptemplatepath+' ' + _crftraindatapath + ' '+self.crfmodelpath
-        os.system(cmd)
-
-    def predict(self):
-        for elt in os.listdir(_crffeadir):
-            elt = elt.replace(' ', '\\ ')
-            
-            print 'Predicting sheet row labels for:', elt
-            
-            featurepath = _crffeadir + '/'+elt
-            predictpath = _crfpredictdir + '/'+elt
-            try:
-                cmd = self.crftestscript+' -m ' +self.crfmodelpath+' '+ featurepath+' > '+predictpath
-                os.system(cmd)
-            except:
-                raise
-            
-            break
-
-    
- 
+# generate prediction features for each spreadsheet file
 class PredictSheetRows:
     def __init__(self):
         self.fea_row = Feature_SheetRow()
@@ -55,10 +27,6 @@ class PredictSheetRows:
         for elt in os.listdir(_sheetdir):
             if elt.find('xls') < 0:
                 continue
-            
-#             if elt != '44.xls':
-#                 continue
-            
             try:
                 print 'Processing', elt
                 self.generate_from_sheetfile(elt)
@@ -70,6 +38,8 @@ class PredictSheetRows:
                 raise
 
     def generate_from_sheetfile(self, filename):
+        print 'Generating features for each row in', filename
+        
         filepath = _sheetdir+'/'+filename
 
         loadsheet = LoadSheets(filepath)
@@ -89,11 +59,45 @@ class PredictSheetRows:
                         fout.write('0 ')
                 fout.write('Title\n')
             fout.close() 
-            
 
+
+# predict the semantic labels for each row according to its feature vectors
+class RunCRFppCommands:
+
+    def __init__(self):
+        self.crftrainscript = _crfppdir + '/crf_learn'
+        self.crftestscript = _crfppdir + '/crf_test'
+        self.crfmodelpath = _crftempdir + '/model'
+
+#     obtain model parameters through training
+    def train(self):
+        print 'Training CRF++ model... '
+        cmd = self.crftrainscript+' -c 4.0 '+_crfpptemplatepath+' ' + _crftraindatapath + ' '+self.crfmodelpath
+        os.system(cmd)
+        print 'Done training CRF++ model... '
+        
+#    predict each spreadsheet files in the directory
+    def predict(self):
+        for elt in os.listdir(_crffeadir):
+            elt = elt.replace(' ', '\\ ')
+            
+            print 'CRF++ predicting sheet row labels for:', elt
+            
+            featurepath = _crffeadir + '/'+elt
+            predictpath = _crfpredictdir + '/'+elt
+            try:
+                cmd = self.crftestscript+' -m ' +self.crfmodelpath+' '+ featurepath+' > '+predictpath
+                os.system(cmd)
+            except:
+                print 'ERROR predicting:', elt
+#                 raise
+            
+# generate the final output
 class TransformOutput:
     def run(self):
         for elt in os.listdir(_crfpredictdir):
+            print 'Generating final output for', elt
+            
             predictpath = _crfpredictdir + '/' + elt
             outpath = _outputdir + '/' + elt
             fin = open(predictpath)
@@ -113,6 +117,9 @@ class TransformOutput:
             
             fout.close()
             fin.close()
+            
+            print 'Successfully obtain prediction results for', elt
+
             
 if __name__ == '__main__':
     
