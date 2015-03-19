@@ -234,7 +234,7 @@ class Feature_SheetRow:
             cstr, mtype = mycell.cstr, mycell.mtype
             if mtype != 'str':
                 continue
-            if pattern.search(str(cstr)):
+            if pattern.search(unicode(cstr)):
                 count += 1
         if float(count)/len(rowcelldict) >= 0.6:
             return True

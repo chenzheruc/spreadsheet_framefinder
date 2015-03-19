@@ -168,7 +168,7 @@ class LoadSheets:
                             except:
                                 pass
                         else:
-                            cstr = str(curcell.value).replace('\n', ' ')
+                            cstr = unicode(curcell.value).replace('\n', ' ')
                         
 #                         print cstr
                             
