@@ -72,21 +72,21 @@ class RunCRFppCommands:
 #     obtain model parameters through training
     def train(self):
         print 'Training CRF++ model... '
-        cmd = self.crftrainscript+' -c 4.0 '+_crfpptemplatepath+' ' + _crftraindatapath + ' '+self.crfmodelpath
+        cmd = self.crftrainscript+' -c 4.0 "'+_crfpptemplatepath+'" "' + _crftraindatapath + '" "'+self.crfmodelpath+'"'
         os.system(cmd)
         print 'Done training CRF++ model... '
         
 #    predict each spreadsheet files in the directory
     def predict(self):
         for elt in os.listdir(_crffeadir):
-            elt = elt.replace(' ', '\\ ')
+            #elt = elt.replace(' ', '\\ ')
             
             print 'CRF++ predicting sheet row labels for:', elt
             
             featurepath = _crffeadir + '/'+elt
             predictpath = _crfpredictdir + '/'+elt
             try:
-                cmd = self.crftestscript+' -m ' +self.crfmodelpath+' '+ featurepath+' > '+predictpath
+                cmd = self.crftestscript+' -m "' +self.crfmodelpath+'" "'+ featurepath+'" > "'+predictpath+'"'
                 os.system(cmd)
             except:
                 print 'ERROR predicting:', elt
